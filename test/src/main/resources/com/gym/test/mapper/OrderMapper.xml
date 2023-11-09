@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间：对应的接口的全类名-->
+<mapper namespace="com.gym.test.mapper.OrderMapper">
+    <!--查询所有订单-->
+    <select id="getOrders" resultType="com.gym.test.pojo.dto.OrderDto">
+        select order_id orderId, u.user_id userId, c.car_id carId,order_state orderState,u.name name,u.tel tel,c.license_plate_number licensePlateNumber,c.price price,deposit deposit,
+            total_price totalPrice,start_time startTime,end_time endTime,c.start_mileage startMileage,end_mileage endMileage,contract_number contractNumber
+            from orders o left join users u on o.user_id = u.user_id
+            left join cars c on o.car_id = c.car_id where o.isdelete=0
+    </select>
+    <!--根据合同编号查询userId等信息-->
+    <select id="getContractNumber" resultType="com.gym.test.pojo.dto.OrderDto">
+        select order_id orderId, u.user_id userId, c.car_id carId,order_state orderState,u.name name,u.tel tel,c.license_plate_number licensePlateNumber,c.price price,deposit deposit,
+               total_price totalPrice,start_time startTime,end_time endTime,c.start_mileage startMileage,end_mileage endMileage,contract_number contractNumber
+        from orders o left join users u on o.user_id = u.user_id
+                      left join cars c on o.car_id = c.car_id where o.isdelete=0 and contract_number = #{contractNumber}
+    </select>
+    <!--根据搜索框信息查询-->
+    <select id="getSearchEmployees" resultType="com.gym.test.pojo.dto.OrderDto">
+        select order_id orderId, u.user_id userId, c.car_id carId,order_state orderState,u.name name,u.tel tel,c.license_plate_number licensePlateNumber,c.price price,deposit deposit,
+               total_price totalPrice,start_time startTime,end_time endTime,c.start_mileage startMileage,end_mileage endMileage,contract_number contractNumber
+        from orders o left join users u on o.user_id = u.user_id
+                      left join cars c on o.car_id = c.car_id
+        <where>
+            <if test="orderState!=null and orderState!=''">
+                order_state=#{orderState}
+            </if>
+            <if test="name!=null and name!=''">
+                and u.name=#{name}
+            </if>
+            <if test="tel!=null and tel!=''">
+                and u.tel=#{tel}
+            </if>
+            <if test="licensePlateNumber!=null and licensePlateNumber!=''">
+                and license_plate_number=#{licensePlateNumber}
+            </if>
+            <if test="startTime!=null">
+                and start_time=#{startTime}
+            </if>
+            <if test="endTime!=null">
+                and end_time=#{endTime}
+            </if>
+            <if test="contractNumber!=null and contractNumber!=''">
+                and contract_number=#{contractNumber}
+            </if>
+                and o.isdelete=0
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间：对应的接口的全类名-->
+<mapper namespace="com.gym.test.mapper.DamageInformationMapper">
+    <!--id和对应的mapper接口中的方法名一样-->
+    <select id="getSearchEmployees" resultType="com.gym.test.pojo.DamageInformation">
+        select * from damage_information
+        <where>
+            <if test="contractNumber!=null and contractNumber!=''">
+                contract_number=#{contractNumber}
+            </if>
+            <if test="damageState!=null and damageState!=''">
+                and damage_state=#{damageState}
+            </if>
+                and isdelete=0
+        </where>
+     </select>
+    <!--因为图片为file需要使用关联查询-->
+    <resultMap id="Map" type="com.gym.test.pojo.DamageInformation">
+        <!--
+            一对一的关联查询：
+            select: 用哪一个方法来做关联查询
+            column：要把哪一个参数传进去查询
+            file： 把结果赋给哪一个属性
+        -->
+        <association property="returnImg" column="return_img" select="com.gym.test.mapper.FileMapper.getById"></association>
+    </resultMap>
+    <select id="getDamageInformations" resultMap="Map">
+        select * from damage_information where isdelete = 0
+    </select>
+</mapper>

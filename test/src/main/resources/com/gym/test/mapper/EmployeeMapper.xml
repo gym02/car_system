@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间：对应的接口的全类名-->
+<mapper namespace="com.gym.test.mapper.EmployeeMapper">
+    <!--id和对应的mapper接口中的方法名一样-->
+    <select id="getSearchEmployees" resultType="com.gym.test.pojo.Employee">
+        select * from employees
+        <where>
+            <if test="name!=null and name!=''">
+                name=#{name}
+            </if>
+            <if test="tel!=null and tel!=''">
+                and tel=#{tel}
+            </if>
+                and isdelete=0
+        </where>
+    </select>
+    <!--修改用户-->
+    <update id="updateEmployee">
+        update employees set name=#{employee.name},tel=#{employee.tel},username=#{employee.username}
+             <if test="employee.password!=null and employee.password!=''">
+                , password=#{employee.password}
+             </if>
+        where employee_id=#{employee.employeeId}
+    </update>
+</mapper>

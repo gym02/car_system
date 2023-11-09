@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录页面</title>
+
+  <script src="/js/vue.js"></script>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="/css/elementui.css">
+  <!-- 引入组件库 -->
+  <script src="/js/elementui.js"></script>
+  <script src="/js/axios.min.js"></script>
+  <script src="/js/spark-md5.min.js"></script>
+  <style>
+
+    /*body {*/
+    /*  background-image: url(/static/img/preview.gif);*/
+    /*  background-repeat: no-repeat;*/
+    /*  background-size: cover;*/
+    /*  background-position: 0px -200px;*/
+    /*}*/
+    .fullscreenvideo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: 50%;
+      height: 50%;
+      z-index: -100;
+      -webkit-transform: translateX(-50%) translateY(-50%);
+      transform: translateX(-50%) translateY(-50%);
+      -webkit-transition: 1s opacity;
+      transition: 1s opacity;
+      object-fit: cover;
+    }
+
+    .videocontainer{
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -100;
+    }
+
+    .videocontainer:before{
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      background: rgba(0,0,0,0);
+    }
+
+    .login-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 400px;
+      padding: 40px;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, .5);
+      box-sizing: border-box;
+      box-shadow: 0 15px 25px rgba(0, 0, 0, .6);
+      border-radius: 10px;
+    }
+
+    .login-box h2 {
+      margin: 0 0 30px;
+      padding: 0;
+      color: #fff;
+      text-align: center;
+    }
+
+    .login-box .user-box {
+      position: relative;
+    }
+
+    .login-box .user-box input {
+      width: 100%;
+      padding: 10px 0;
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 30px;
+      border: none;
+      border-bottom: 1px solid #fff;
+      outline: none;
+      background: transparent;
+    }
+
+    .login-box .user-box label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 10px 0;
+      font-size: 16px;
+      color: #fff;
+      pointer-events: none;
+      transition: .5s;
+    }
+
+    .login-box .user-box input:focus ~ label,
+    .login-box .user-box input:valid ~ label {
+      top: -20px;
+      left: 0;
+      color: #03e9f4;
+      font-size: 12px;
+    }
+
+    .login-box form a {
+      position: relative;
+      display: inline-block;
+      padding: 10px 20px;
+      color: #03e9f4;
+      font-size: 16px;
+      text-decoration: none;
+      text-transform: uppercase;
+      overflow: hidden;
+      transition: .5s;
+      margin-top: 40px;
+      letter-spacing: 4px
+    }
+
+    .login-box a:hover {
+      background: #03e9f4;
+      color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 5px #03e9f4,
+      0 0 25px #03e9f4,
+      0 0 50px #03e9f4,
+      0 0 100px #03e9f4;
+    }
+
+    .login-box a span {
+      position: absolute;
+      display: block;
+    }
+
+    .login-box a span:nth-child(1) {
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #03e9f4);
+      animation: btn-anim1 1s linear infinite;
+    }
+
+    @keyframes btn-anim1 {
+      0% {
+        left: -100%;
+      }
+      50%, 100% {
+        left: 100%;
+      }
+    }
+
+    .login-box a span:nth-child(2) {
+      top: -100%;
+      right: 0;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(180deg, transparent, #03e9f4);
+      animation: btn-anim2 1s linear infinite;
+      animation-delay: .25s
+    }
+
+    @keyframes btn-anim2 {
+      0% {
+        top: -100%;
+      }
+      50%, 100% {
+        top: 100%;
+      }
+    }
+
+    .login-box a span:nth-child(3) {
+      bottom: 0;
+      right: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(270deg, transparent, #03e9f4);
+      animation: btn-anim3 1s linear infinite;
+      animation-delay: .5s
+    }
+
+    @keyframes btn-anim3 {
+      0% {
+        right: -100%;
+      }
+      50%, 100% {
+        right: 100%;
+      }
+    }
+
+    .login-box a span:nth-child(4) {
+      bottom: -100%;
+      left: 0;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(360deg, transparent, #03e9f4);
+      animation: btn-anim4 1s linear infinite;
+      animation-delay: .75s
+    }
+
+    @keyframes btn-anim4 {
+      0% {
+        bottom: -100%;
+      }
+      50%, 100% {
+        bottom: 100%;
+      }
+    }
+  </style>
+
+</head>
+<body>
+<div class="videocontainer">
+  <video class="fullscreenvideo" playsinline="" autoplay="" muted="" loop="">
+    <source src="/images/girl.mp4" type="video/mp4">
+  </video>
+</div>
+
+<div class="login-box">
+  <h2>登录系统</h2>
+  <form>
+    <div class="user-box">
+      <input type="text" name="" required="" v-model="user.username">
+      <label>用户名</label>
+    </div>
+    <div class="user-box">
+      <input type="password" name="" required="" v-model="user.password">
+      <label>密码</label>
+    </div>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a @click="login()">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      登录
+    </a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </form>
+</div>
+<script>
+  new Vue({
+    el:".login-box",
+    data:{
+      user:{
+        username:'',
+        password:''
+      },
+      salt:''
+    },
+    methods:{
+      login(){
+        let loginUser = {
+          username:'',
+          password:''
+        }
+        loginUser.username = this.user.username
+        loginUser.password = SparkMD5.hash(this.user.password+this.salt);
+        axios.post("/employee/login",loginUser)
+                .then(resp =>{
+                  if(resp.data.code == 200){
+                    localStorage.setItem("employee",resp.data.data);
+                    window.location.href = "../index2.html";
+                    this.$message({
+                      message: '登陆成功',
+                      type: 'success'
+                    });
+                    localStorage.setItem("user",this.user);
+                    this.user='';
+                  }else if(resp.data.code == 201){
+                    localStorage.setItem("admin",resp.data.data);
+                    window.location.href = "../index.html";
+                    this.$message({
+                      message: '登陆成功',
+                      type: 'success'
+                    });
+                    localStorage.setItem("user",this.user);
+                    this.user='';
+                  } else{
+                     this.$message({
+                      message: '登陆失败',
+                      type: 'error'
+                    });
+                  }
+                })
+      }
+    },
+    mounted(){
+      axios.get("/employee/salt")
+              .then(resp => {
+                this.salt = resp.data.data;
+              })
+    }
+  })
+
+//   鼠标特效
+  function clickEffect() {
+    let balls = [];
+    let longPressed = false;
+    let longPress;
+    let multiplier = 0;
+    let width, height;
+    let origin;
+    let normal;
+    let ctx;
+    const colours = ["#F73859", "#14FFEC", "#00E0FF", "#FF99FE", "#FAF15D"];
+    const canvas = document.createElement("canvas");
+    document.body.appendChild(canvas);
+    canvas.setAttribute("style", "width: 100%; height: 100%; top: 0; left: 0; z-index: 99999; position: fixed; pointer-events: none;");
+    const pointer = document.createElement("span");
+    pointer.classList.add("pointer");
+    document.body.appendChild(pointer);
+
+    if (canvas.getContext && window.addEventListener) {
+      ctx = canvas.getContext("2d");
+      updateSize();
+      window.addEventListener('resize', updateSize, false);
+      loop();
+      window.addEventListener("mousedown", function(e) {
+        pushBalls(randBetween(10, 20), e.clientX, e.clientY);
+        document.body.classList.add("is-pressed");
+        longPress = setTimeout(function(){
+          document.body.classList.add("is-longpress");
+          longPressed = true;
+        }, 500);
+      }, false);
+      window.addEventListener("mouseup", function(e) {
+        clearInterval(longPress);
+        if (longPressed == true) {
+          document.body.classList.remove("is-longpress");
+          pushBalls(randBetween(50 + Math.ceil(multiplier), 100 + Math.ceil(multiplier)), e.clientX, e.clientY);
+          longPressed = false;
+        }
+        document.body.classList.remove("is-pressed");
+      }, false);
+      window.addEventListener("mousemove", function(e) {
+        let x = e.clientX;
+        let y = e.clientY;
+        pointer.style.top = y + "px";
+        pointer.style.left = x + "px";
+      }, false);
+    } else {
+      console.log("canvas or addEventListener is unsupported!");
+    }
+
+
+    function updateSize() {
+      canvas.width = window.innerWidth * 2;
+      canvas.height = window.innerHeight * 2;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.scale(2, 2);
+      width = (canvas.width = window.innerWidth);
+      height = (canvas.height = window.innerHeight);
+      origin = {
+        x: width / 2,
+        y: height / 2
+      };
+      normal = {
+        x: width / 2,
+        y: height / 2
+      };
+    }
+    class Ball {
+      constructor(x = origin.x, y = origin.y) {
+        this.x = x;
+        this.y = y;
+        this.angle = Math.PI * 2 * Math.random();
+        if (longPressed == true) {
+          this.multiplier = randBetween(14 + multiplier, 15 + multiplier);
+        } else {
+          this.multiplier = randBetween(6, 12);
+        }
+        this.vx = (this.multiplier + Math.random() * 0.5) * Math.cos(this.angle);
+        this.vy = (this.multiplier + Math.random() * 0.5) * Math.sin(this.angle);
+        this.r = randBetween(8, 12) + 3 * Math.random();
+        this.color = colours[Math.floor(Math.random() * colours.length)];
+      }
+      update() {
+        this.x += this.vx - normal.x;
+        this.y += this.vy - normal.y;
+        normal.x = -2 / window.innerWidth * Math.sin(this.angle);
+        normal.y = -2 / window.innerHeight * Math.cos(this.angle);
+        this.r -= 0.3;
+        this.vx *= 0.9;
+        this.vy *= 0.9;
+      }
+    }
+
+    function pushBalls(count = 1, x = origin.x, y = origin.y) {
+      for (let i = 0; i < count; i++) {
+        balls.push(new Ball(x, y));
+      }
+    }
+
+    function randBetween(min, max) {
+      return Math.floor(Math.random() * max) + min;
+    }
+
+    function loop() {
+      ctx.fillStyle = "rgba(255, 255, 255, 0)";
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < balls.length; i++) {
+        let b = balls[i];
+        if (b.r < 0) continue;
+        ctx.fillStyle = b.color;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2, false);
+        ctx.fill();
+        b.update();
+      }
+      if (longPressed == true) {
+        multiplier += 0.2;
+      } else if (!longPressed && multiplier >= 0) {
+        multiplier -= 0.4;
+      }
+      removeBall();
+      requestAnimationFrame(loop);
+    }
+
+    function removeBall() {
+      for (let i = 0; i < balls.length; i++) {
+        let b = balls[i];
+        if (b.x + b.r < 0 || b.x - b.r > width || b.y + b.r < 0 || b.y - b.r > height || b.r < 0) {
+          balls.splice(i, 1);
+        }
+      }
+    }
+  }
+  clickEffect();//调用特效函数
+
+</script>
+
+</body>
+</html>

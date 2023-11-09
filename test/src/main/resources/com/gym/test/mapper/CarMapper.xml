@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间：对应的接口的全类名-->
+<mapper namespace="com.gym.test.mapper.CarMapper">
+    <!--id和对应的mapper接口中的方法名一样-->
+    <select id="getSearchCars" resultType="com.gym.test.pojo.Car">
+        select * from cars
+        <where>
+            <if test="carState!=null and carState!=''">
+                car_state=#{carState}
+            </if>
+            <if test="licensePlateNumber!=null and licensePlateNumber!=''">
+                and license_plate_number=#{licensePlateNumber}
+            </if>
+            <if test="brand!=null and brand!=''">
+                and brand=#{brand}
+            </if>
+            <if test="carModel!=null and carModel!=''">
+                and car_model=#{carModel}
+            </if>
+            <if test="price!=null and price!=''">
+                and price=#{price}
+            </if>
+            <if test="startMileage!=null and startMileage!=''">
+                and start_mileage=#{startMileage}
+            </if>
+            <if test="registTime!=null">
+                and regist_time=#{registTime}
+            </if>
+                and isdelete=0
+        </where>
+     </select>
+    <!--因为图片为file需要使用关联查询-->
+    <resultMap id="Map" type="com.gym.test.pojo.Car">
+        <!--
+            一对一的关联查询：
+            select: 用哪一个方法来做关联查询
+            column：要把哪一个参数传进去查询
+            property： 把结果赋给哪一个属性
+        -->
+        <association property="carImg" column="car_img" select="com.gym.test.mapper.FileMapper.getById"></association>
+    </resultMap>
+    <select id="getCars" resultMap="Map">
+        select * from cars where isdelete = 0
+    </select>
+
+</mapper>

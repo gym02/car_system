@@ -1,0 +1,21 @@
+spring:
+  # 连接数据库的基本信息
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/car_system?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+#    useSSL是否使用ssl加密、serverTimezone设置时区（springboot2以上版本不设置会报错）、allowPublicKeyRetrieval是否允许客户端获取密钥
+    username: root
+    password: 123
+  main:
+    allow-circular-references: true
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 开启自动驼峰命名
+    map-underscore-to-camel-case: true
+password-salt: 1q@W3E
+file:
+  base-path: d:/imgs
+server:
+  port: 8084

@@ -1,0 +1,3183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理系统</title>
+    <link type="text/css" rel="stylesheet" href="/css/elementui.css">
+    <script src="/js/vue.js"></script>
+    <script src="/js/elementui.js"></script>
+    <script src="/js/axios.min.js"></script>
+    <script src="/js/spark-md5.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/default-passive-events"></script>
+</head>
+<style>
+    html, body, #app, .container {
+        margin: 0;
+        height: 100%;
+    }
+
+    .el-menu-demo {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .aside {
+        height: 100vh;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        overflow: hidden;
+    }
+
+    .el-menu-vertical-demo {
+        height: 100vh;
+    }
+
+    #index1 {
+        height: 60px;
+        background-color: black;
+        padding: 0;
+        margin: 0;
+    }
+
+    .header, .main {
+        margin: 0;
+        padding: 0;
+    }
+
+    .mydiv {
+        padding-top: 10px;
+        padding-right: 30px;
+        display: inline-block;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image {
+        padding: 0;
+        margin: 0;
+    }
+
+    .image img {
+        position: absolute;
+        left: 0;
+        right: 0;
+    }
+
+    .searchForm, .dataTable {
+        padding-top: 20px;
+        border: 1px solid lightgray;
+    }
+
+    .spanButton {
+        /* 设置span元素的位置为相对定位 */
+        position: relative;
+        /* 设置span元素的右边距为10px */
+        right: 10px;
+        /* 设置span元素的浮动为右浮动 */
+        float: right;
+        margin-right: 30px;
+        border: 1px solid lightgray;
+    }
+
+    .container {
+        width: auto;
+    }
+
+
+    .showImage {
+        background-image: url("images/m3.png");
+        background-size: cover;
+        width: auto;
+        height: auto;
+        /*background-color: #409eff;*/
+    }
+</style>
+<body>
+
+<!---->
+<div id="app" ref="element">
+    <el-container class="container">
+        <!--侧边导航栏-->
+        <el-aside width="auto" class="aside">
+            <!--菜单默认颜色 #545c64 -->
+            <el-menu id="menu"
+                     :collapse-transition="false"
+                     :collapse="isCollapse"
+                     default-active="1"
+                     class="el-menu-vertical-demo"
+                     background-color="#303133"
+                     text-color="#fff"
+                     active-text-color="#ffd04b">
+                <el-menu-item index="1" id="index1" class="showImage" @click="show='main'">
+                    <span class="image">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </el-menu-item>
+
+                <el-menu-item index="1" @click="show='main'">
+                    <i class="el-icon-s-home"></i>
+                    <span slot="title">主页界面</span>
+                </el-menu-item>
+
+                <el-menu-item index="2" @click="getEmployees">
+                    <i class="el-icon-platform-eleme"></i>
+                    <span slot="title">员工管理&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </el-menu-item>
+
+                <el-menu-item index="3" @click="getUsers">
+                    <i class="el-icon-user"></i>
+                    <span slot="title">用户管理&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </el-menu-item>
+
+                <el-menu-item index="4" @click="getCars">
+                    <i class="el-icon-truck"></i>
+                    <span slot="title">汽车管理&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </el-menu-item>
+
+                <el-menu-item index="5" @click="getOrders">
+                    <i class="el-icon-document"></i>
+                    <span slot="title">订单管理&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </el-menu-item>
+
+                <el-menu-item index="6" @click="getDamageInformations">
+                    <i class="el-icon-bell"></i>
+                    <span slot="title">损坏信息管理&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </el-menu-item>
+
+                <el-menu-item index="7" @click="getViolationInformations">
+                    <i class="el-icon-warning-outline"></i>
+                    <span slot="title" @click="getViolationInformations">违章信息管理</span>
+                </el-menu-item>
+            </el-menu>
+        </el-aside>
+        <el-container class="container">
+            <!--主体-->
+            <el-main class="main">
+                <!--   头部-->
+                <el-header class="header">
+
+                    <el-menu class="el-menu-demo" mode="horizontal"
+                    >
+                        <el-menu-item index="1"><i class="el-icon-s-fold" @click="changeButton"></i></el-menu-item>
+                        <el-menu-item index="2" style="font-size:14px;">常规管理</el-menu-item>
+                        <el-menu-item index="3" style="font-size:14px;">其他管理</el-menu-item>
+                        <div style="text-align:right" class="divButton">
+                            <div class="mydiv"><i class="el-icon-refresh" @click="refreshButton"></i></div>
+                            <div class="mydiv"><i class="el-icon-full-screen" id="fullscreen-button"></i></div>
+                            <div class="mydiv"><i class="el-icon-delete" @click="deleteButton"></i></div>
+                            <div class="mydiv">
+                                <el-button @click="excilButton">退出登录</el-button>
+                            </div>
+                        </div>
+                    </el-menu>
+                    <div class="line"></div>
+
+                </el-header>
+                <!--主界面-->
+                <div v-if="show=='main'">
+                    <el-carousel :interval="4000" type="card" height="200px">
+                        <el-carousel-item>
+                            <h3 class="medium">
+                                <el-card shadow="always" style="height: 200px; background-color: #303133;
+                                    padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-platform-eleme"></i>
+                                    现有员工数:{{this.employeeTotal}}
+                                </el-card>
+                            </h3>
+                        </el-carousel-item>
+                        <el-carousel-item>
+                            <h3 class="medium">
+                                <el-card shadow="always" style="height: 200px;background-color: #67C23A;
+                                         padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-user"></i>
+                                    交易用户数:{{this.userTotal}}
+                                </el-card>
+                            </h3>
+                        </el-carousel-item>
+                        <el-carousel-item>
+                            <h3 class="medium">
+                                <el-card shadow="always" style="height: 200px;background-color: #66b1ff;
+                                         padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-truck"></i>
+                                    现有汽车数:{{this.carTotal}}
+                                </el-card>
+                            </h3>
+                        </el-carousel-item>
+                        <el-carousel-item>
+                            <h3 class="medium">
+                                <el-card shadow="always" style="height: 200px;background-color: plum;
+                                  padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-document"></i>
+                                    完成订单数:{{this.orderTotal}}
+                                </el-card>
+                            </h3>
+                        </el-carousel-item>
+                        <el-carousel-item>
+                            <h3 class="medium">
+                                <el-card shadow="always" style="height: 200px;background-color: orange;
+                                  padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-bell"></i>
+                                    待处理受损信息数:{{this.damageInformationTotal}}
+                                </el-card>
+                            </h3>
+                        </el-carousel-item>
+                        <el-carousel-item>
+                            <h3 class="medium">
+                                <el-card shadow="always" style="height: 200px;background-color: #ff4d51;
+                                  padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-warning-outline"></i>
+                                    待处理违章信息数:{{this.violationInformationTotal}}
+                                </el-card>
+                            </h3>
+                        </el-carousel-item>
+                    </el-carousel>
+                    <div>
+                        <el-row :gutter="12">
+                            <el-col :span="4">
+                                <el-card shadow="always" style="height: 100px; background-color: #303133;
+                                    padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-platform-eleme"></i>
+                                    现有员工数:{{this.employeeTotal}}
+                                </el-card>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-card shadow="always" style="height: 100px;background-color: #67C23A;
+                                         padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-user"></i>
+                                    交易用户数:{{this.userTotal}}
+                                </el-card>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-card shadow="always" style="height: 100px;background-color: #66b1ff;
+                                         padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-truck"></i>
+                                    现有汽车数:{{this.carTotal}}
+                                </el-card>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-card shadow="always" style="height: 100px;background-color: plum;
+                                  padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-document"></i>
+                                    完成订单数:{{this.orderTotal}}
+                                </el-card>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-card shadow="always" style="height: 100px;background-color: orange;
+                                  padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-bell"></i>
+                                    待处理受损信息数:{{this.damageInformationTotal}}
+                                </el-card>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-card shadow="always" style="height: 100px;background-color: #ff4d51;
+                                  padding-left: 20px;padding-top: 30px;color: white;font-weight: bold ">
+                                    <i class="el-icon-warning-outline"></i>
+                                    待处理违章信息数:{{this.violationInformationTotal}}
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                    </div>
+                </div>
+                <!--=====================================员工============================================-->
+                <!-- 员工界面-->
+                <div v-if="show=='employees'" class="dataTable">
+                    <!--搜索框-->
+                    <el-form ref="form" :model="searchEmployee" label-width="80px" class="searchForm">
+
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="员工姓名">
+                                        <el-input v-model="searchEmployee.name" class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="员工电话">
+                                        <el-input v-model="searchEmployee.tel"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="4">
+                                <div>
+                                    <el-button @click="searchEmployees"><i class="el-icon-search"></i>搜索</el-button>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    </br>
+                    <!--数据显示框-->
+                    <div class="dataTable">
+                        <template>
+                            <el-button type="primary" @click="addEmployeeDialog='true'">添加</el-button>
+                            <span class="spanButton" @click="EmployeeExport"><i
+                                    class="el-icon-folder-opened"></i></span>
+                            <el-table
+                                    max-height="700"
+                                    :data="employees"
+                                    style="width: 100%"
+                                    :default-sort="{prop: 'date', order: 'descending'}"
+                            >
+                                <el-table-column
+                                        fixed
+                                        prop="employeeId"
+                                        label="序号"
+                                        sortable
+                                        width="350">
+                                    <template slot-scope="scope">
+                                        <i class="el-icon-platform-eleme"></i>
+                                        <span style="margin-left: 10px">{{ scope.row.employeeId }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="name"
+                                        label="姓名"
+                                        sortable
+                                        width="350">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="tel"
+                                        label="电话"
+                                        sortable
+                                        width="350">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.tel }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="操作">
+                                    <template slot-scope="scope">
+                                        <el-button icon="el-icon-edit" circle type="primary"
+                                                   @click="updateEmployee(scope.row,scope.$index)"></el-button>
+                                        <el-button icon="el-icon-delete" circle type="danger"
+                                                   @click="removeEmployee(scope.row.employeeId,scope.$index)"></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </template>
+
+                        <div class="block">
+                            <el-pagination
+                                    @size-change="changeEmployeeSize"
+                                    @current-change="changeEmployeeNum"
+                                    :current-page="employeePageDto.pageNum"
+                                    :page-sizes="[5, 10, 20,40]"
+                                    :page-size="employeePageDto.pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper"
+                                    :pager-count="5"
+                                    :total="employeeTotal">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+                <!-- 添加员工的对话框-->
+                <el-dialog title="员工信息" :visible.sync="addEmployeeDialog">
+                    <el-form ref="form" :model="employee" label-width="80px">
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="员工姓名">
+                                        <el-input v-model="employee.name"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="员工电话">
+                                        <el-input v-model="employee.tel"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="员工账号">
+                                        <el-input v-model="employee.username"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="员工密码">
+                                        <el-input v-model="employee.password"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancleAddEmployee">取 消</el-button>
+                        <el-button type="primary" @click="addEmployee">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <!--=====================================用户=============================================-->
+                <!-- 用户界面-->
+                <div v-if="show=='users'" class="dataTable">
+                    <!--搜索框-->
+                    <el-form ref="form" :model="searchUser" label-width="80px" class="searchForm">
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="用户姓名">
+                                        <el-input v-model="searchUser.name" class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="用户年龄">
+                                        <el-input v-model="searchUser.age"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="用户电话">
+                                        <el-input v-model="searchUser.tel" class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="身份证号">
+                                        <el-input v-model="searchUser.idNumber"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="4">
+                                <div>
+                                    <el-button @click="searchUsers"><i class="el-icon-search"></i>搜索</el-button>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    </br>
+                    <!--数据显示框-->
+                    <div class="dataTable">
+                        <template>
+                            <el-button type="primary" @click="addUserDialog='true'">添加</el-button>
+                            <span class="spanButton" @click="userExport"><i class="el-icon-folder-opened"></i></span>
+                            <el-table
+                                    max-height="700"
+                                    :data="users"
+                                    style="width: 100%"
+                                    :default-sort="{prop: 'date', order: 'descending'}"
+                            >
+                                <el-table-column
+                                        fixed
+                                        prop="userId"
+                                        label="序号"
+                                        sortable
+                                        width="210">
+                                    <template slot-scope="scope">
+                                        <i class="el-icon-user"></i>
+                                        <span style="margin-left: 10px">{{ scope.row.userId }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="name"
+                                        label="姓名"
+                                        sortable
+                                        width="210">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="age"
+                                        label="年龄"
+                                        sortable
+                                        width="210">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.age }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="tel"
+                                        label="电话号"
+                                        sortable
+                                        width="210">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.tel }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="idNumber"
+                                        label="身份证号"
+                                        sortable
+                                        width="210">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.idNumber }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="操作">
+                                    <template slot-scope="scope">
+                                        <el-button icon="el-icon-edit" circle type="primary"
+                                                   @click="updateUser(scope.row,scope.$index)"></el-button>
+                                        <el-button icon="el-icon-delete" circle type="danger"
+                                                   @click="removeUser(scope.row.userId,scope.$index)"></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </template>
+
+                        <div class="block">
+                            <el-pagination
+                                    @size-change="changeUserSize"
+                                    @current-change="changeUserNum"
+                                    :current-page="userPageDto.pageNum"
+                                    :page-sizes="[5, 10, 20,40]"
+                                    :page-size="userPageDto.pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper"
+                                    :pager-count="5"
+                                    :total="userTotal">
+                            </el-pagination>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- 添加用户对话框-->
+                <el-dialog title="用户信息" :visible.sync="addUserDialog">
+                    <el-form ref="form" :model="user" label-width="80px">
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="用户姓名">
+                                        <el-input v-model="user.name"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="用户年龄">
+                                        <el-input v-model="user.age"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="用户电话">
+                                        <el-input v-model="user.tel"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="身份证号">
+                                        <el-input v-model="user.idNumber"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancleAddUser">取 消</el-button>
+                        <el-button type="primary" @click="addUser">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <!--=====================================汽车=============================================-->
+                <!-- 汽车界面-->
+                <div v-if="show=='cars'" class="dataTable">
+                    <!--搜索框-->
+                    <el-form ref="form" :model="searchCar" label-width="80px" class="searchForm">
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="汽车状态">
+                                        <el-select v-model="searchCar.carState" placeholder="请选择">
+                                            <el-option
+                                                    v-for="item in carState"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    </template>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="车牌号">
+                                        <el-input v-model="searchCar.licensePlateNumber"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="品牌">
+                                        <el-input v-model="searchCar.brand"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="类型">
+                                        <el-input v-model="searchCar.carModel" class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="价格￥/天">
+                                        <el-input v-model="searchCar.price"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="起始里程">
+                                        <el-input v-model="searchCar.startMileage"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="注册时间">
+                                        <el-date-picker
+                                                v-model="searchCar.registTime"
+                                                value-format="yyyy-MM-dd"
+                                                type="date"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="4">
+                                <div>
+                                    <el-button @click="searchCars"><i class="el-icon-search"></i>搜索</el-button>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    </br>
+                    <!--数据显示框-->
+                    <div class="dataTable">
+                        <template>
+                            <el-button type="primary" @click="addCarDialog='true'">添加</el-button>
+                            <span class="spanButton" @click="carExport"><i class="el-icon-folder-opened"></i></span>
+                            <el-table
+                                    max-height="700"
+                                    :data="cars"
+                                    style="width: 100%"
+                                    :default-sort="{prop: 'date', order: 'descending'}"
+                            >
+                                <el-table-column
+                                        fixed
+                                        prop="carId"
+                                        label="序号"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <i class="el-icon-truck"></i>
+                                        <span style="margin-left: 10px">{{ scope.row.carId }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="carState"
+                                        label="状态"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.carState }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="licensePlateNumber"
+                                        label="车牌号"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.licensePlateNumber }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="brand"
+                                        label="品牌"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.brand }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="carType"
+                                        label="类型"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.carModel }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="price"
+                                        label="价格Y/天"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.price }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="startMileage"
+                                        label="起始里程"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.startMileage }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="registTime"
+                                        label="汽车注册时间"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.registTime }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed="right"
+                                        label="操作"
+                                        width="180">
+                                    <template slot-scope="scope">
+                                        <el-button icon="el-icon-picture-outline" circle type="info" plain
+                                                   @click="img=scope.row.carImg.id"></el-button>
+                                        <el-button icon="el-icon-edit" circle type="primary"
+                                                   @click="updateCar(scope.row,scope.$index)"></el-button>
+                                        <el-button icon="el-icon-delete" circle type="danger"
+                                                   @click="removeCar(scope.row.carId,scope.$index)"></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </template>
+
+                        <div class="block">
+                            <el-pagination
+                                    @size-change="changeCarSize"
+                                    @current-change="changeCarNum"
+                                    :current-page="carPageDto.pageNum"
+                                    :page-sizes="[5, 10, 20,40]"
+                                    :page-size="carPageDto.pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper"
+                                    :pager-count="5"
+                                    :total="carTotal">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+                <!-- 添加汽车对话框-->
+                <el-dialog title="汽车信息" :visible.sync="addCarDialog">
+                    <el-form ref="form" :model="car" label-width="80px">
+                        <el-form-item label="汽车状态">
+                            <el-radio v-model="car.carState" label="已出租">已出租</el-radio>
+                            <el-radio v-model="car.carState" label="待出租">待出租</el-radio>
+                            <el-radio v-model="car.carState" label="维修">维修</el-radio>
+                            <el-radio v-model="car.carState" label="年检">年检</el-radio>
+                        </el-form-item>
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="品牌" width="12">
+                                        <template>
+                                            <el-select v-model="car.brand" placeholder="请选择">
+                                                <el-option
+                                                        v-for="item in carBrands"
+                                                        :key="item"
+                                                        :label="item"
+                                                        :value="item">
+                                                </el-option>
+                                            </el-select>
+                                        </template>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="车牌号">
+                                        <el-input v-model="car.licensePlateNumber"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="型号">
+                                        <el-input v-model="car.carModel"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="价格Y/天">
+                                        <el-input v-model="car.price"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="起始里程">
+                                        <el-input v-model="car.startMileage"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="注册时间">
+                                        <el-date-picker
+                                                v-model="car.registTime"
+                                                value-format="yyyy-MM-dd"
+                                                type="date"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-upload
+                                :data="uploadArgs"
+                                ref="upload"
+                                :on-change="selectFile"
+                                :auto-upload="false"
+                                :limit="1"
+                                :multiple="false"
+                                action="/file/upload"
+                                :on-success="uploaded"
+                                list-type="picture">
+                            <el-button size="small" type="primary">点击上传</el-button>
+                            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                        </el-upload>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancleAddCar">取 消</el-button>
+                        <el-button type="primary" @click="addCar">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <!--汽车图片弹出框-->
+                <el-dialog
+                        title="汽车图片"
+                        :visible.sync="img"
+                        width="30%">
+                    <el-image
+                            style="width: 200px; height: 200px"
+                            :src="'/file/img?id='+img"></el-image>
+                    <span slot="footer" class="dialog-footer">
+		                  <el-button type="primary" @click="img = null">关 闭</el-button>
+		            </span>
+                </el-dialog>
+                <!--=====================================订单=============================================-->
+                <!--订单界面-->
+                <div v-if="show=='orders'" class="dataTable">
+                    <!--搜索框-->
+                    <el-form ref="form" :model="searchOrder" label-width="80px" class="searchForm">
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="订单状态">
+                                        <el-select v-model="searchOrder.orderState" placeholder="请选择">
+                                            <el-option
+                                                    v-for="item in orderState"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    </template>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="用户姓名">
+                                        <el-input v-model="searchOrder.name"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="用户电话">
+                                        <el-input v-model="searchOrder.tel"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="车牌号">
+                                        <el-input v-model="searchOrder.licensePlateNumber"
+                                                  class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="开始时间">
+                                        <el-date-picker
+                                                v-model="searchOrder.registTime"
+                                                type="datetime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="结束时间">
+                                        <el-date-picker
+                                                v-model="searchOrder.endTime"
+                                                type="datetime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="合同编号">
+                                        <el-input v-model="searchOrder.contractNumber" class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="4">
+                                <div>
+                                    <el-button @click="searchOrders"><i class="el-icon-search"></i>搜索</el-button>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    </br>
+                    <!--数据显示框-->
+                    <div class="dataTable">
+                        <template>
+                            <el-button type="primary" @click="addOrderDialog='true'">添加</el-button>
+                            <span class="spanButton" @click="orderExport"><i class="el-icon-folder-opened"></i></span>
+                            <el-table
+                                    max-height="700"
+                                    :data="orders"
+                                    style="width: 100%"
+                                    :default-sort="{prop: 'date', order: 'descending'}"
+                            >
+                                <el-table-column
+                                        fixed
+                                        prop="orderId"
+                                        label="序号"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <i class="el-icon-document"></i>
+                                        <span style="margin-left: 10px">{{ scope.row.orderId }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="orderState"
+                                        label="订单状态"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.orderState }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="name"
+                                        label="姓名"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="tel"
+                                        label="电话号"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.tel }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="licensePlateNumber"
+                                        label="车牌号"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.licensePlateNumber }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="price"
+                                        label="价格"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.price }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="deposit"
+                                        label="押金"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.deposit }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="totalPrice"
+                                        label="总价"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                    <span style="margin-left: 10px">
+                                        {{ scope.row.price * (Math.ceil((new Date(scope.row.endTime).getTime() - new Date(scope.row.startTime).getTime()) / (24 * 60 * 60 * 1000))) + scope.row.deposit
+                                        }}
+                                    </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="startTime"
+                                        label="开始时间"
+                                        sortable
+                                        width="150">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.startTime }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="endTime"
+                                        label="结束时间"
+                                        sortable
+                                        width="150">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.endTime }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="startMileage"
+                                        label="开始里程"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.startMileage }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="endMileage"
+                                        label="结束里程"
+                                        sortable
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.endMileage }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="contractNumber"
+                                        label="合同编号"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.contractNumber }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed="right"
+                                        label="操作"
+                                        width="180">
+                                    <template slot-scope="scope">
+                                        <el-button icon="el-icon-edit" circle type="primary"
+                                                   @click="showUpdateDialog(scope.row,scope.$index)"></el-button>
+                                        <el-button icon="el-icon-delete" circle type="danger"
+                                                   @click="removeOrder(scope.row.orderId,scope.$index)"></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </template>
+                        <div class="block">
+                            <el-pagination
+                                    @size-change="changeOrderSize"
+                                    @current-change="changeOrderNum"
+                                    :current-page="orderPageDto.pageNum"
+                                    :page-sizes="[5, 10, 20,40]"
+                                    :page-size="orderPageDto.pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper"
+                                    :pager-count="5"
+                                    :total="orderTotal">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+                <!--添加订单对话框-->
+                <el-dialog title="订单信息" :visible.sync="addOrderDialog">
+                    <el-form ref="form" :model="order" label-width="80px">
+                        <el-form-item label="订单状态">
+                            <el-radio v-model="order.orderState" label="进行中">进行中</el-radio>
+                            <el-radio v-model="order.orderState" label="待支付">待支付</el-radio>
+                            <el-radio v-model="order.orderState" label="已完成">已完成</el-radio>
+                        </el-form-item>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="姓名">
+                                        <el-input v-model="order.name"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="电话">
+                                        <el-input v-model="order.tel" @blur="getUserId"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="车牌号">
+                                        <el-input v-model="order.licensePlateNumber" @blur="getCarId"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="押金">
+                                        <el-input v-model="order.deposit"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="开始时间">
+                                        <el-date-picker
+                                                v-model="order.startTime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                type="datetime"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="结束时间">
+                                        <el-date-picker
+                                                v-model="order.endTime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                type="datetime"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="结束里程">
+                                        <el-input v-model="order.endMileage"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="合同编号">
+                                        <el-input v-model="order.contractNumber"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancleAddOrder">取 消</el-button>
+                        <el-button type="primary" @click="addOrder">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <!--修改订单对话框-->
+                <el-dialog title="订单信息" :visible.sync="updateOrderDialog">
+                    <el-form ref="form" :model="order" label-width="80px">
+                        <el-form-item label="订单状态">
+                            <el-radio v-model="order.orderState" label="已完成">已完成</el-radio>
+                            <el-radio v-model="order.orderState" label="进行中">进行中</el-radio>
+                            <el-radio v-model="order.orderState" label="待支付">待支付</el-radio>
+                        </el-form-item>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="合同编号">
+                                        <el-input v-model="order.contractNumber"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="押金">
+                                        <el-input v-model="order.deposit"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="开始时间">
+                                        <el-date-picker
+                                                v-model="order.startTime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                type="datetime"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="结束时间">
+                                        <el-date-picker
+                                                v-model="order.endTime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                type="datetime"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="结束里程">
+                                        <el-input v-model="order.endMileage"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancleUpdateOrder">取 消</el-button>
+                        <el-button type="primary" @click="updateOrder">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <!--=====================================损坏==============================================-->
+                <!--损坏信息界面-->
+                <div v-if="show=='damageInformations'" class="dataTable">
+                    <!--搜索框-->
+                    <el-form ref="form" :model="searchDamageInformation" label-width="80px" class="searchForm">
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="合同编号">
+                                        <el-input v-model="searchDamageInformation.contractNumber"
+                                                  class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="损坏状态">
+                                        <el-select v-model="searchDamageInformation.damageState" placeholder="请选择">
+                                            <el-option
+                                                    v-for="item in damageState"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    </template>
+                                </div>
+                            </el-col>
+                            <el-col :span="4">
+                                <div>
+                                    <el-button @click="searchDamageInformations"><i class="el-icon-search"></i>搜索
+                                    </el-button>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    </br>
+                    <!--数据显示框-->
+                    <div class="dataTable">
+                        <template>
+                            <el-button type="primary" @click="addDamageInformationDialog='true'">添加</el-button>
+                            <span class="spanButton" @click="damageInformationExport"><i
+                                    class="el-icon-folder-opened"></i></span>
+                            <el-table
+                                    max-height="700"
+                                    :data="damageInformations"
+                                    style="width: 100%"
+                                    :default-sort="{prop: 'date', order: 'descending'}"
+                            >
+                                <el-table-column
+                                        fixed
+                                        prop="damageInformationId"
+                                        label="序号"
+                                        sortable
+                                        width="260">
+                                    <template slot-scope="scope">
+                                        <i class="el-icon-bell"></i>
+                                        <span style="margin-left: 10px">{{ scope.row.damageInformationId }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="contractNumber"
+                                        label="合同编号"
+                                        sortable
+                                        width="260">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.contractNumber }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="damageState"
+                                        label="损坏状态"
+                                        sortable
+                                        width="260">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.damageState }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed
+                                        prop="datail"
+                                        label="详细信息"
+                                        sortable
+                                        width="260">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.detail }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="操作">
+                                    <template slot-scope="scope">
+                                        <el-button icon="el-icon-picture-outline" circle type="info" plain
+                                                   @click="img=scope.row.returnImg.id"></el-button>
+                                        <el-button icon="el-icon-edit" circle type="primary"
+                                                   @click="updateDamageInformation(scope.row,scope.$index)"></el-button>
+                                        <el-button icon="el-icon-delete" circle type="danger"
+                                                   @click="removeDamageInformation(scope.row.contractNumber,scope.$index)"></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </template>
+                        <div class="block">
+                            <el-pagination
+                                    @size-change="changeDamageInformationSize"
+                                    @current-change="changeDamageInformationNum"
+                                    :current-page="damageInformationPageDto.pageNum"
+                                    :page-sizes="[5, 10, 20,40]"
+                                    :page-size="damageInformationPageDto.pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper"
+                                    :pager-count="5"
+                                    :total="damageInformationTotal">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+                <!--添加损坏信息对话框-->
+                <el-dialog title="汽车损坏信息" :visible.sync="addDamageInformationDialog">
+                    <el-form ref="form" :model="damageInformation" label-width="80px">
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="合同编号">
+                                        <el-input v-model="damageInformation.contractNumber"
+                                                  @blur="getContractNumber"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-form-item label="损坏状态">
+                            <el-radio v-model="damageInformation.damageState" label="轻度刮擦">轻度刮擦</el-radio>
+                            <el-radio v-model="damageInformation.damageState" label="中度碰撞">中度碰撞</el-radio>
+                            <el-radio v-model="damageInformation.damageState" label="重度损坏">重度损坏</el-radio>
+                            <el-radio v-model="damageInformation.damageState" label="报废">报废</el-radio>
+                        </el-form-item>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="详细信息">
+                                        <el-input
+                                                type="textarea"
+                                                autosize
+                                                placeholder="请输入内容"
+                                                v-model="damageInformation.detail">
+                                        </el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-upload
+                                :data="uploadArgs"
+                                ref="upload"
+                                :on-change="selectFile2"
+                                :auto-upload="false"
+                                :limit="1"
+                                :multiple="false"
+                                action="/file/upload"
+                                :on-success="uploaded2"
+                                list-type="picture">
+                            <el-button size="small" type="primary">点击上传</el-button>
+                            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                        </el-upload>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancleAddDamageInformation">取 消</el-button>
+                        <el-button type="primary" @click="addDamageInformation">确 定</el-button>
+                    </div>
+                </el-dialog>
+                <!--损坏汽车图片弹出框-->
+                <el-dialog
+                        title="汽车图片"
+                        :visible.sync="img"
+                        width="30%">
+                    <el-image
+                            style="width: 200px; height: 200px"
+                            :src="'/file/img?id='+img"></el-image>
+                    <span slot="footer" class="dialog-footer">
+		                  <el-button type="primary" @click="img = null">关 闭</el-button>
+		            </span>
+                </el-dialog>
+                <!--======================================违章=============================================-->
+                <!--违章信息界面-->
+                <div v-if="show=='violationInformations'" class="dataTable">
+                    <!--搜索框-->
+                    <el-form ref="form" :model="searchViolationInformation" label-width="80px" class="searchForm">
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="合同编号">
+                                        <el-input v-model="searchViolationInformation.contractNumber"
+                                                  class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="违章状态">
+                                        <el-select v-model="searchViolationInformation.violationState"
+                                                   placeholder="请选择">
+                                            <el-option
+                                                    v-for="item in violateState"
+                                                    :key="item.value"
+                                                    :label="item.label"
+                                                    :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    </template>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="违章地点">
+                                        <el-input v-model="searchViolationInformation.violationLocation"
+                                                  class="searchButton"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="6">
+                                <div>
+                                    <el-form-item label="违章时间">
+                                        <el-date-picker
+                                                v-model="searchViolationInformation.violationTime"
+                                                type="datetime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="4">
+                                <div>
+                                    <el-button @click="searchViolationInformations"><i class="el-icon-search"></i>搜索
+                                    </el-button>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    </br>
+                    <!--数据显示框-->
+                    <div class="dataTable">
+                        <template>
+                            <el-button type="primary" @click="addViolationInformationDialog='true'">添加</el-button>
+                            <span class="spanButton" @click="violationInformationExport"><i
+                                    class="el-icon-folder-opened"></i></span>
+                            <el-table
+                                    max-height="700"
+                                    :data="violationInformations"
+                                    style="width: 100%"
+                                    :default-sort="{prop: 'date', order: 'descending'}"
+                            >
+                                <el-table-column
+                                        fixed
+                                        prop="violationInformationId"
+                                        label="序号"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <i class="el-icon-warning-outline"></i>
+                                        <span style="margin-left: 10px">{{ scope.row.violationInformationId }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="contractNumber"
+                                        label="合同编号"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.contractNumber }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="violationState"
+                                        label="违章状态"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.violationState }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="penalty"
+                                        label="违章罚款"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.penalty }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="datail"
+                                        label="详细信息"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.detail }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="violationLocation"
+                                        label="违章地点"
+                                        sortable
+                                        width="130">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.violationLocation }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="violationTime"
+                                        label="违章时间"
+                                        sortable
+                                        width="150">
+                                    <template slot-scope="scope">
+                                        <span style="margin-left: 10px">{{ scope.row.violationTime }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        label="操作"
+                                        fixed="right"
+                                        width="180">
+                                    <template slot-scope="scope">
+                                        <el-button icon="el-icon-edit" circle type="primary"
+                                                   @click="updateViolationInformation(scope.row,scope.$index)"></el-button>
+                                        <el-button icon="el-icon-delete" circle type="danger"
+                                                   @click="removeViolationInformation(scope.row.contractNumber,scope.$index)"></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </template>
+
+                        <div class="block">
+                            <el-pagination
+                                    @size-change="changeViolationInformationSize"
+                                    @current-change="changeViolationInformationNum"
+                                    :current-page="violationInformationPageDto.pageNum"
+                                    :page-sizes="[5, 10, 20,40]"
+                                    :page-size="violationInformationPageDto.pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper"
+                                    :pager-count="5"
+                                    :total="violationInformationTotal">
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+                <!--添加违章信息对话框-->
+                <el-dialog title="汽车违章信息" :visible.sync="addViolationInformationDialog">
+                    <el-form ref="form" :model="violationInformation" label-width="80px">
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="合同编号">
+                                        <el-input v-model="violationInformation.contractNumber"
+                                                  @blur="getContractNumber2"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-form-item label="违章状态">
+                            <el-radio v-model="violationInformation.violationState" label="待处理">待处理</el-radio>
+                            <el-radio v-model="violationInformation.violationState" label="处理中">处理中</el-radio>
+                            <el-radio v-model="violationInformation.violationState" label="已处理">已处理</el-radio>
+                        </el-form-item>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="罚金">
+                                        <el-input v-model="violationInformation.penalty"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="详细信息">
+                                        <el-input
+                                                type="textarea"
+                                                autosize
+                                                placeholder="请输入内容"
+                                                v-model="violationInformation.detail">
+                                        </el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="违章地点">
+                                        <el-input v-model="violationInformation.violationLocation"></el-input>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div>
+                                    <el-form-item label="违章时间">
+                                        <el-date-picker
+                                                v-model="violationInformation.violationTime"
+                                                value-format="yyyy-MM-dd HH:mm:ss"
+                                                type="datetime"
+                                                placeholder="选择日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancleAddViolationInformation">取 消</el-button>
+                        <el-button type="primary" @click="addViolationInformation">确 定</el-button>
+                    </div>
+                </el-dialog>
+            </el-main>
+        </el-container>
+    </el-container>
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            //默认显示div
+            show: "main",
+            //默认添加
+            addFlag: true,
+            //记录修改的下标
+            indexFlag: '',
+            //改变侧边栏的收缩
+            isCollapse: false,
+            //存储照片md5值
+            uploadArgs: {
+                md5: ""
+            },
+            //控制照片的显示
+            img: null,
+//====================违章信息相关属性=====================
+            addViolationInformationDialog: false,
+            violationInformations: [],
+            violationInformation: {
+                violationInformationId: '',
+                contractNumber: '',
+                violationState: '',
+                penalty: '',
+                detail: '',
+                violationLocation: '',
+                violationTime: '',
+            },
+            violateState: [
+                {value: '待处理', label: '待处理'},
+                {value: '处理中', label: '处理中'},
+                {value: '已处理', label: '已处理'},
+            ],
+            violationInformationPageDto: {
+                pageNum: 1,
+                pageSize: 5,
+            },
+            violationInformationTotal: '',
+            searchViolationInformation: {
+                violationInformationId: '',
+                contractNumber: '',
+                violationState: '',
+                penalty: '',
+                detail: '',
+                violationLocation: '',
+                violationTime: '',
+            },
+//===================损坏信息相关属性======================
+            addDamageInformationDialog: false,
+            damageInformations: [],
+            damageInformation: {
+                damageInformationId: '',
+                orderId: '',
+                contractNumber: '',
+                damageState: '',
+                detail: '',
+                carImg: null,
+                returnImg: null,
+            },
+            damageState: [
+                {value: '轻度刮擦', label: '轻度刮擦'},
+                {value: '中度碰撞', label: '中度碰撞'},
+                {value: '重度损坏', label: '重度损坏'},
+                {value: '报废', label: '报废'},
+            ],
+            damageInformationPageDto: {
+                pageNum: 1,
+                pageSize: 5,
+            },
+            damageInformationTotal: '',
+            searchDamageInformation: {
+                damageInformationId: '',
+                orderId: '',
+                contractNumber: '',
+                damageState: '',
+                detail: '',
+            },
+//===================订单相关属性=========================
+            addOrderDialog: false,
+            updateOrderDialog: false,
+            orders: [],
+            order: {
+                orderId: '',
+                userId: '',
+                carId: '',
+                orderState: '',
+                name: '',
+                tel: '',
+                licensePlateNumber: '',
+                price: '',
+                deposit: '',
+                totalPrice: '',
+                startTime: '',
+                endTime: '',
+                startMileage: '',
+                endMileage: '',
+                contractNumber: '',
+                isdelete: ''
+            },
+            orderState: [
+                {value: '进行中', label: '进行中'},
+                {value: '待支付', label: '待支付'},
+                {value: '已完成', label: '已完成'},
+            ],
+            orderPageDto: {
+                pageNum: 1,
+                pageSize: 5,
+            },
+            orderTotal: '',
+            searchOrder: {
+                orderId: '',
+                userId: '',
+                carId: '',
+                orderState: '',
+                name: '',
+                tel: '',
+                licensePlateNumber: '',
+                price: '',
+                deposit: '',
+                totalPrice: '',
+                startTime: '',
+                endTime: '',
+                startMileage: '',
+                endMileage: '',
+                contractNumber: '',
+                isdelete: ''
+            },
+//===================汽车相关属性=========================
+            addCarDialog: false,
+            cars: [],
+            car: {
+                carId: '',
+                carState: '',
+                brand: '',
+                licensePlateNumber: '',
+                carModel: '',
+                price: '',
+                registTime: '',
+                startMileage: '',
+                carImg: null,
+            },
+            carBrands: [],
+            carState: [
+                {value: '已出租', label: '已出租'},
+                {value: '待出租', label: '待出租'},
+                {value: '维修', label: '维修'},
+                {value: '年检', label: '年检'},
+            ],
+            carPageDto: {
+                pageNum: 1,
+                pageSize: 5,
+            },
+            carTotal: '',
+            searchCar: {
+                carId: '',
+                brand: '',
+                licensePlateNumber: '',
+                carModel: '',
+                price: '',
+                carState: '',
+                registTime: '',
+                startMileage: '',
+                carImg:null,
+                isdelete: ''
+            },
+//===================用户相关属性==========================
+            //增删改
+            addUserDialog: false,
+            users: [],
+            user: {
+                userId: '',
+                name: '',
+                age: '',
+                tel: '',
+                idNumber: '',
+                isdelete: ''
+            },
+            userPageDto: {
+                pageNum: 1,
+                pageSize: 5,
+            },
+            userTotal: '',
+            //搜索
+            searchUser: {
+                userId: '',
+                name: '',
+                age: '',
+                tel: '',
+                idNumber: '',
+                isdelete: ''
+            },
+//==============员工相关属性==========================
+            //增删改
+            addEmployeeDialog: false,
+            employees: [],
+            employeeTotal: '',
+            employeeNumber: '',
+            employee: {
+                employeeId: '',
+                name: '',
+                tel: '',
+                username: '',
+                password: '',
+            },
+            employeePageDto: {
+                pageNum: 1,
+                pageSize: 5,
+            },
+            salt: '',
+            employeeTotal: '',
+            //搜索
+            searchEmployee: {
+                employeeId: '',
+                name: '',
+                tel: '',
+                username: '',
+                password: '',
+                pageSize: 5,
+                pageNum: 1,
+            },
+        },
+        methods: {
+//==============================照片======================
+            //这是element-ui定义的file，原始的file在raw中
+            selectFile(f) {
+                let file = f.raw;
+                let that = this;
+                //计算文件md5
+                let blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+                    chunkSize = 2097152,                             // Read in chunks of 2MB
+                    chunks = Math.ceil(file.size / chunkSize),
+                    currentChunk = 0,
+                    spark = new SparkMD5.ArrayBuffer(),
+                    fileReader = new FileReader();
+                fileReader.onload = function (e) {
+                    console.log('read chunk nr', currentChunk + 1, 'of', chunks);
+                    spark.append(e.target.result);                   // Append array buffer
+                    currentChunk++;
+                    if (currentChunk < chunks) {
+                        loadNext();
+                    } else {
+                        console.log('finished loading');
+                        let md5 = spark.end();
+                        //向后端发请求，查询有没有这个文件
+                        console.log(md5);
+                        axios.get("/file/getByMd5?md5=" + md5)
+                            .then(res => {
+                                //文件不存在
+                                if (res.data.code == 400) {
+                                    //把计算出来的md5值存入uploadArgs中
+                                    that.uploadArgs.md5 = md5;
+                                    //上传文件，获取上传文件的id
+                                    //1.使用axios
+                                    //2.手动调upload中的submit函数
+                                    that.$refs.upload.submit();
+                                    //有这个文件
+                                } else {
+                                    //直接把id存起来下次提交上去
+                                    that.car.carImg = {
+                                        id: res.data.data
+                                    }
+                                }
+                            })
+                    }
+                };
+                fileReader.onerror = function () {
+                    console.warn('oops, something went wrong.');
+                };
+
+                function loadNext() {
+                    var start = currentChunk * chunkSize,
+                        end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
+                    fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
+                }
+
+                loadNext();
+            },
+            //加载图片到后端
+            uploaded(res) {
+                //文件上传成功后，把后端响应回来的文件标识存入car中，下次提交数据时就会自动提交到后端
+                this.car.carImg = {
+                    id: res.data.data
+                }
+            },
+            selectFile2(f) {
+                let file = f.raw;
+                let that = this;
+                //计算文件md5
+                let blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+                    chunkSize = 2097152,                             // Read in chunks of 2MB
+                    chunks = Math.ceil(file.size / chunkSize),
+                    currentChunk = 0,
+                    spark = new SparkMD5.ArrayBuffer(),
+                    fileReader = new FileReader();
+                fileReader.onload = function (e) {
+                    console.log('read chunk nr', currentChunk + 1, 'of', chunks);
+                    spark.append(e.target.result);                   // Append array buffer
+                    currentChunk++;
+                    if (currentChunk < chunks) {
+                        loadNext();
+                    } else {
+                        console.log('finished loading');
+                        let md5 = spark.end();
+                        //向后端发请求，查询有没有这个文件
+                        console.log(md5);
+                        axios.get("/file/getByMd5?md5=" + md5)
+                            .then(res => {
+                                //文件不存在
+                                if (res.data.code == 400) {
+                                    //把计算出来的md5值存入uploadArgs中
+                                    that.uploadArgs.md5 = md5;
+                                    //上传文件，获取上传文件的id
+                                    //1.使用axios
+                                    //2.手动调upload中的submit函数
+                                    that.$refs.upload.submit();
+                                    //有这个文件
+                                } else {
+                                    //直接把id存起来下次提交上去
+                                    that.damageInformation.returnImg = {
+                                        id: res.data.data
+                                    }
+                                }
+                            })
+                    }
+                };
+                fileReader.onerror = function () {
+                    console.warn('oops, something went wrong.');
+                };
+
+                function loadNext() {
+                    var start = currentChunk * chunkSize,
+                        end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
+                    fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
+                }
+
+                loadNext();
+            },
+            //加载图片到后端
+            uploaded2(res) {
+                //文件上传成功后，把后端响应回来的文件标识存入car中，下次提交数据时就会自动提交到后端
+                this.damageInformation.returnImg = {
+                    id: res.data.data
+                }
+            },
+//=============================导航栏=====================
+            excilButton() {
+                window.location.href = "http://localhost:8080/login.html"
+                this.$message({
+                    message: "退出登录",
+                    type: "success"
+                })
+            },
+            changeButton() {
+                this.isCollapse = !this.isCollapse;
+            },
+            refreshButton() {
+                // 使用location.reload方法来重新加载页面，并忽略缓存内容
+                location.reload(true);
+                this.$message({
+                    message: "刷新成功",
+                    type: "success"
+                })
+            },
+            deleteButton() {
+                this.$message({
+                    message: "服务端清除缓存成功",
+                    type: "success"
+                })
+            },
+//=============================违章=======================
+            //增删改
+            changeViolationInformationSize(size) {
+                this.violationInformationPageDto.pageSize = size;
+                this.violationInformationPageDto.pageNum = 1;
+                this.getViolationInformations();
+            },
+            changeViolationInformationNum(num) {
+                this.violationInformationPageDto.pageNum = num;
+                this.getViolationInformations();
+            },
+            getViolationInformations() {
+                this.show = "violationInformations";
+                axios.post("/violationInformation/getViolationInformations", this.violationInformationPageDto)
+                    .then(resp => {
+                        this.violationInformations = resp.data.data.list;
+                        this.violationInformationTotal = resp.data.data.total;
+                    })
+            },
+            getContractNumber2() {
+                axios.get("/order/getContractNumberNoReturns/" + this.violationInformation.contractNumber)
+                    .then(resp => {
+                        if (resp.data.code == 400) {
+                            this.$message({
+                                message: "合同编号不存在",
+                                type: "error"
+                            })
+                        } else {
+                            this.violationInformation.orderId = resp.data.data;
+                        }
+                    })
+            },
+            addViolationInformation() {
+                if (this.addFlag == true) {
+                    axios.post("/violationInformation/addViolationInformation", this.violationInformation)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                this.violationInformations.push(resp.data.data);
+                                this.$message({
+                                    message: "添加成功",
+                                    type: "success"
+                                })
+                            } else {
+                                this.$message({
+                                    message: "添加失败",
+                                    type: "error"
+                                })
+                            }
+                        })
+                    this.violationInformation.violationInformationId = '';
+                    this.violationInformation.contractNumber = '';
+                    this.violationInformation.violationState = '';
+                    this.violationInformation.penalty = '';
+                    this.violationInformation.detail = '';
+                    this.violationInformation.violationLocation = '';
+                    this.violationInformation.violationTime = '';
+                    this.addViolationInformationDialog = false;
+                } else {
+                    axios.post("/violationInformation/updateViolationInformation", this.violationInformation)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                let newViolationInformation = resp.data.data;
+                                this.violationInformations.splice(this.indexFlag, 1, newViolationInformation);
+                                this.$message({
+                                    message: "修改成功",
+                                    type: "success"
+                                })
+                            }
+                        })
+                    this.addViolationInformationDialog = false;
+                    this.violationInformation.violationInformationId = '';
+                    this.violationInformation.contractNumber = '';
+                    this.violationInformation.violationState = '';
+                    this.violationInformation.penalty = '';
+                    this.violationInformation.detail = '';
+                    this.violationInformation.violationLocation = '';
+                    this.violationInformation.violationTime = '';
+                    this.addFlag = true;
+                }
+            },
+            cancleAddViolationInformation() {
+                this.violationInformation.violationInformationId = '';
+                this.violationInformation.contractNumber = '';
+                this.violationInformation.violationState = '';
+                this.violationInformation.penalty = '';
+                this.violationInformation.detail = '';
+                this.violationInformation.violationLocation = '';
+                this.violationInformation.violationTime = '';
+                this.addViolationInformationDialog = false;
+                this.addFlag = true;
+            },
+            removeViolationInformation(contractNumber, index) {
+                axios.post("/violationInformation/removeViolationInformation/" + contractNumber)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.violationInformations.splice(index, 1);
+                            this.$message({
+                                message: "删除成功",
+                                type: "success"
+                            })
+                        } else {
+                            this.$message({
+                                message: "删除失败",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            updateViolationInformation(row, index) {
+                this.violationInformation.violationInformationId = row.violationInformationId;
+                this.violationInformation.contractNumber = row.contractNumber;
+                this.violationInformation.violationState = row.violationState;
+                this.violationInformation.penalty = row.penalty;
+                this.violationInformation.detail = row.detail;
+                this.violationInformation.violationLocation = row.violationLocation;
+                this.violationInformation.violationTime = row.violationTime;
+                this.indexFlag = index;
+                axios.get("/order/getContractNumberNoReturns/" + this.violationInformation.contractNumber)
+                    .then(resp => {
+                        if (resp.data.code == 400) {
+                            this.$message({
+                                message: "合同编号不存在",
+                                type: "error"
+                            })
+                        } else {
+                            this.violationInformation.orderId = resp.data.data;
+                        }
+                    })
+                this.addViolationInformationDialog = true;
+                this.addFlag = false;
+            },
+            //搜索
+            searchViolationInformations() {
+                axios.post("/violationInformation/getSearchViolationInformations", this.searchViolationInformation)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.violationInformations = resp.data.data;
+                            this.$message({
+                                message: "查询成功",
+                                type: "success"
+                            })
+                            this.searchViolationInformation.contractNumber = '';
+                            this.searchViolationInformation.violationState = '';
+                            this.searchViolationInformation.violationLocation = '';
+                            this.searchViolationInformation.violationTime = '';
+                        }
+                    })
+            },
+            //导出excel
+            violationInformationExport() {
+                let url = "http://localhost:8080/violationInformation/export";
+                url += "?pageSize=" + this.violationInformationPageDto.pageSize;
+                url += "&pageNum=" + this.violationInformationPageDto.pageNum;
+                if (this.searchViolationInformation.violationInformationId) {
+                    url += "&violationInformationId=" + this.searchViolationInformation.violationInformationId;
+                }
+                if (this.searchViolationInformation.contractNumber) {
+                    url += "&contractNumber=" + this.searchViolationInformation.contractNumber;
+                }
+                if (this.searchViolationInformation.violationState) {
+                    url += "&violationState=" + this.searchViolationInformation.violationState;
+                }
+                if (this.searchViolationInformation.penalty) {
+                    url += "&penalty=" + this.searchViolationInformation.penalty;
+                }
+                if (this.searchViolationInformation.detail) {
+                    url += "&detail=" + this.searchViolationInformation.detail;
+                }
+                if (this.searchViolationInformation.violationLocation) {
+                    url += "&violationLocation=" + this.searchViolationInformation.violationLocation;
+                }
+                if (this.searchViolationInformation.violationTime) {
+                    url += "&violationTime=" + this.searchViolationInformation.violationTime;
+                }
+                window.location.href = url;
+            },
+//=============================损坏=======================
+            //增删改
+            changeDamageInformationSize(size) {
+                this.damageInformationPageDto.pageSize = size;
+                this.damageInformationPageDto.pageNum = 1;
+                this.getDamageInformations();
+            },
+            changeDamageInformationNum(num) {
+                this.damageInformationPageDto.pageNum = num;
+                this.getDamageInformations();
+            },
+            getDamageInformations() {
+                this.show = "damageInformations";
+                axios.post("/damageInformation/getDamageInformations", this.damageInformationPageDto)
+                    .then(resp => {
+                        this.damageInformations = resp.data.data.list;
+                        this.damageInformationTotal = resp.data.data.total;
+                    })
+            },
+            getContractNumber() {
+                axios.get("/order/getContractNumberNoReturns/" + this.damageInformation.contractNumber)
+                    .then(resp => {
+                        if (resp.data.code == 400) {
+                            this.$message({
+                                message: "合同编号不存在",
+                                type: "error"
+                            })
+                        } else {
+                            this.damageInformation.orderId = resp.data.data;
+                        }
+                    })
+            },
+            addDamageInformation() {
+                if (this.addFlag == true) {
+                    axios.post("/damageInformation/addDamageInformation", this.damageInformation)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                this.damageInformations.push(resp.data.data);
+                                this.$message({
+                                    message: "添加成功",
+                                    type: "success"
+                                })
+                            } else {
+                                this.$message({
+                                    message: "添加失败",
+                                    type: "error"
+                                })
+                            }
+                        })
+                    this.damageInformation.damageInformationId = '';
+                    this.damageInformation.contractNumber = '';
+                    this.damageInformation.damageState = '';
+                    this.damageInformation.detail = '';
+                    this.addDamageInformationDialog = false;
+                } else {
+                    axios.post("/damageInformation/updateDamageInformation", this.damageInformation)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                let newDamageInformation = resp.data.data;
+                                this.damageInformations.splice(this.indexFlag, 1, newDamageInformation);
+                                this.$message({
+                                    message: "修改成功",
+                                    type: "success"
+                                })
+                            }
+                        })
+                    this.addDamageInformationDialog = false;
+                    this.damageInformation.damageInformationId = '';
+                    this.damageInformation.contractNumber = '';
+                    this.damageInformation.damageState = '';
+                    this.damageInformation.detail = '';
+                    this.addFlag = true;
+                }
+            },
+            cancleAddDamageInformation() {
+                this.addDamageInformationDialog = false;
+                this.damageInformation.damageInformationId = '';
+                this.damageInformation.contractNumber = '';
+                this.damageInformation.damageState = '';
+                this.damageInformation.detail = '';
+                this.addFlag = true;
+            },
+            removeDamageInformation(contractNumber, index) {
+                axios.post("/damageInformation/removeDamageInformation/" + contractNumber)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.damageInformations.splice(index, 1);
+                            this.$message({
+                                message: "删除成功",
+                                type: "success"
+                            })
+                        } else {
+                            this.$message({
+                                message: "删除失败",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            updateDamageInformation(row, index) {
+                this.indexFlag = index;
+                this.damageInformation.damageInformationId = row.damageInformationId;
+                this.damageInformation.contractNumber = row.contractNumber;
+                this.damageInformation.damageState = row.damageState;
+                this.damageInformation.detail = row.detail;
+                this.indexFlag = index;
+                axios.get("/order/getContractNumberNoReturns/" + this.damageInformation.contractNumber)
+                    .then(resp => {
+                        if (resp.data.code == 400) {
+                            this.$message({
+                                message: "合同编号不存在",
+                                type: "error"
+                            })
+                        } else {
+                            this.damageInformation.orderId = resp.data.data;
+                        }
+                    })
+                this.addDamageInformationDialog = true;
+                this.addFlag = false;
+            },
+            //搜索
+            searchDamageInformations() {
+                axios.post("/damageInformation/getSearchDamageInformations", this.searchDamageInformation)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.damageInformations = resp.data.data;
+                            this.$message({
+                                message: "查询成功",
+                                type: "success"
+                            })
+                            this.searchDamageInformation.contractNumber = '';
+                            this.searchDamageInformation.damageState = '';
+                        }
+                    })
+            },
+            //导出excel
+            damageInformationExport() {
+                let url = "http://localhost:8080/damageInformation/export";
+                url += "?pageSize=" + this.damageInformationPageDto.pageSize;
+                url += "&pageNum=" + this.damageInformationPageDto.pageNum;
+                if (this.searchDamageInformation.damageInformationId) {
+                    url += "&damageInformationId=" + this.searchDamageInformation.damageInformationId;
+                }
+                if (this.searchDamageInformation.contractNumber) {
+                    url += "&contractNumber=" + this.searchDamageInformation.contractNumber;
+                }
+                if (this.searchDamageInformation.damageState) {
+                    url += "&damageState=" + this.searchDamageInformation.damageState;
+                }
+                if (this.searchDamageInformation.detail) {
+                    url += "&detail=" + this.searchDamageInformation.detail;
+                }
+                window.location.href = url;
+            },
+//============================订单==============================
+            //增删改
+            changeOrderSize(size) {
+                this.orderPageDto.pageSize = size;
+                this.orderPageDto.pageNum = 1;
+                this.getOrders();
+            },
+            changeOrderNum(num) {
+                this.orderPageDto.pageNum = num;
+                this.getOrders();
+            },
+            getOrders() {
+                this.show = "orders";
+                axios.post("/order/getOrders", this.orderPageDto)
+                    .then(resp => {
+                        this.orders = resp.data.data.list;
+                        this.orderTotal = resp.data.data.total;
+                    })
+            },
+            getUserId() {
+                axios.post("/user/getUserId", {name: this.order.name, tel: this.order.tel})
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.order.userId = resp.data.data;
+                        } else {
+                            this.$message({
+                                message: "查无此人",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            getCarId() {
+                axios.post("/car/getCarId", {licensePlateNumber: this.order.licensePlateNumber})
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.order.carId = resp.data.data;
+                            axios.post("/car/getCarState/" + this.order.carId)
+                                .then(resp => {
+                                    if (resp.data.data != '待出租') {
+                                        this.$message({
+                                            message: "该车已出租或维修中",
+                                            type: "error"
+                                        })
+                                    }
+                                })
+                            axios.post("/car/getCarDetail/" + this.order.carId)
+                                .then(resp => {
+                                    this.order.price = resp.data.data.price;
+                                    this.order.startMileage = resp.data.data.startMileage;
+                                })
+                        } else {
+                            this.$message({
+                                message: "查无此车",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            getContractNumber3() {
+                axios.get("/order/getContractNumber/" + this.order.contractNumber)
+                    .then(resp => {
+                        if (resp.data.code == 400) {
+                            this.$message({
+                                message: "合同编号不存在",
+                                type: "error"
+                            })
+                        } else {
+                            this.order.orderId = resp.data.data.orderId;
+                        }
+                    })
+            },
+            addOrder() {
+                if (this.addFlag == true) {
+                    axios.post("/order/addOrder", this.order)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                this.orders.push(resp.data.data);
+                                axios.post("/car/updateCarState2/" + this.order.carId)
+                                    .then(resp => {
+                                        if (resp.data.code == 200) {
+                                        }
+                                    })
+                                this.$message({
+                                    message: "添加成功",
+                                    type: "success"
+                                })
+                            } else {
+                                this.$message({
+                                    message: "添加失败",
+                                    type: "error"
+                                })
+                            }
+                        })
+                    this.order.orderState = '';
+                    this.order.name = '';
+                    this.order.tel = '';
+                    this.order.licensePlateNumber = '';
+                    this.order.price = '';
+                    this.order.deposit = '';
+                    this.order.startTime = '';
+                    this.order.endTime = '';
+                    this.order.startMileage = '';
+                    this.order.endMileage = '';
+                    this.order.contractNumber = '';
+                    this.addOrderDialog = false;
+                }
+            },
+            cancleAddOrder() {
+                this.addOrderDialog = false;
+                this.order.orderId = '';
+                this.order.name = '';
+                this.order.tel = '';
+                this.order.licensePlateNumber = '';
+                this.order.price = '';
+                this.order.deposit = '';
+                this.order.startTime = '';
+                this.order.endTime = '';
+                this.order.startMileage = '';
+                this.order.endMileage = '';
+                this.order.contractNumber = '';
+                this.addFlag = true;
+            },
+            removeOrder(orderId, index) {
+                axios.post("/order/removeOrder/" + orderId)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.orders.splice(index, 1);
+                            this.$message({
+                                message: "删除成功",
+                                type: "success"
+                            })
+                        } else {
+                            this.$message({
+                                message: "删除失败",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            showUpdateDialog(row, index) {
+                this.order.orderId = row.orderId;
+                this.order.carId = row.carId;
+                this.order.orderState = row.orderState;
+                this.order.contractNumber = row.contractNumber;
+                this.order.price = row.price;
+                this.order.deposit = row.deposit;
+                this.order.startTime = row.startTime;
+                this.order.endTime = row.endTime;
+                this.order.endMileage = row.endMileage;
+                this.indexFlag = index;
+                this.updateOrderDialog = true;
+            },
+            updateOrder() {
+                axios.post("/order/updateOrder", this.order)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            console.log(resp.data.data.contractNumber)
+                            axios.get("/order/getContractNumber/" + resp.data.data.contractNumber)
+                                .then(resp => {
+                                    if (resp.data.code == 200) {
+                                        axios.post("/damageInformation/updateByOrderId",
+                                            {
+                                                "orderId": resp.data.data.orderId,
+                                                "contractNumber": resp.data.data.contractNumber
+                                            })
+                                        axios.post("/violationInformation/updateByOrderId",
+                                            {
+                                                "orderId": resp.data.data.orderId,
+                                                "contractNumber": resp.data.data.contractNumber
+                                            })
+                                        let newOrder = resp.data.data;
+                                        this.orders.splice(this.indexFlag, 1, newOrder);
+                                    }
+                                })
+                            this.$message({
+                                message: "修改成功",
+                                type: "success"
+                            })
+                        }
+                    })
+                if (this.order.orderState == "已完成") {
+                    axios.post("/car/updateStartMileage", {
+                        orderId: this.order.carId,
+                        endMileage: this.order.endMileage
+                    })
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                            }
+                        })
+                    axios.post("/car/updateCarState/" + this.order.carId)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                            }
+                        })
+                }
+                this.order.orderId = '';
+                this.order.orderState = '';
+                this.order.contractNumber = '';
+                this.order.deposit = '';
+                this.order.price = '';
+                this.order.startTime = '';
+                this.order.endTime = '';
+                this.order.endMileage = '';
+                this.updateOrderDialog = false;
+            },
+            cancleUpdateOrder() {
+                this.order.orderId = '';
+                this.order.orderState = '';
+                this.order.contractNumber = '';
+                this.order.deposit = '';
+                this.order.startTime = '';
+                this.order.endTime = '';
+                this.order.endMileage = '';
+                this.updateOrderDialog = false;
+            },
+            //搜索
+            searchOrders() {
+                axios.post("/order/getSearchOrders", this.searchOrder)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.orders = resp.data.data;
+                            this.$message({
+                                message: "查询成功",
+                                type: "success"
+                            })
+                            this.searchOrder.orderState = '';
+                            this.searchOrder.name = '';
+                            this.searchOrder.tel = '';
+                            this.searchOrder.licensePlateNumber = '';
+                            this.searchOrder.startTime = '';
+                            this.searchOrder.endTime = '';
+                            this.searchOrder.contractNumber = '';
+                        }
+                    })
+            },
+            //导出excel
+            orderExport() {
+                let url = "http://localhost:8080/order/export";
+                url += "?pageSize=" + this.orderPageDto.pageSize;
+                url += "&pageNum=" + this.orderPageDto.pageNum;
+                if (this.searchOrder.orderId) {
+                    url += "&orderId=" + this.searchOrder.orderId;
+                }
+                if (this.searchOrder.orderState) {
+                    url += "&orderState=" + this.searchOrder.orderState;
+                }
+                if (this.searchOrder.name) {
+                    url += "&name=" + this.searchOrder.name;
+                }
+                if (this.searchOrder.tel) {
+                    url += "&tel=" + this.searchOrder.tel;
+                }
+                if (this.searchOrder.licensePlateNumber) {
+                    url += "&licensePlateNumber=" + this.searchOrder.licensePlateNumber;
+                }
+                if (this.searchOrder.price) {
+                    url += "&price=" + this.searchOrder.price;
+                }
+                if (this.searchOrder.deposit) {
+                    url += "&deposit=" + this.searchOrder.deposit;
+                }
+                if (this.searchOrder.totalPrice) {
+                    url += "&totalPrice=" + this.searchOrder.totalPrice;
+                }
+                if (this.searchOrder.startTime) {
+                    url += "&startTime=" + this.searchOrder.startTime;
+                }
+                if (this.searchOrder.endTime) {
+                    url += "&endTime=" + this.searchOrder.endTime;
+                }
+                if (this.searchOrder.startMileage) {
+                    url += "&startMileage=" + this.searchOrder.startMileage;
+                }
+                if (this.searchOrder.endMileage) {
+                    url += "&endMileage=" + this.searchOrder.endMileage;
+                }
+                if (this.searchOrder.contractNumber) {
+                    url += "&contractNumber=" + this.searchOrder.contractNumber;
+                }
+                window.location.href = url;
+            },
+//============================汽车==============================
+            //增删改
+            changeCarSize(size) {
+                this.carPageDto.pageSize = size;
+                this.carPageDto.pageNum = 1;
+                this.getCars();
+            },
+            changeCarNum(num) {
+                this.carPageDto.pageNum = num;
+                this.getCars();
+            },
+            getCars() {
+                this.show = "cars";
+                axios.post("/car/getCars", this.carPageDto)
+                    .then(resp => {
+                        this.cars = resp.data.data.list;
+                        this.carTotal = resp.data.data.total;
+                    })
+            },
+            addCar() {
+                if (this.addFlag == true) {
+                    axios.post("/car/addCar", this.car)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                this.cars.push(resp.data.data);
+                                this.$message({
+                                    message: "添加成功",
+                                    type: "success"
+                                })
+                            } else {
+                                this.$message({
+                                    message: "添加失败",
+                                    type: "error"
+                                })
+                            }
+                        })
+                    this.car.carId = '';
+                    this.car.brand = '';
+                    this.car.licensePlateNumber = '';
+                    this.car.carModel = '';
+                    this.car.carState = '';
+                    this.car.price = '';
+                    this.car.registTime = '';
+                    this.car.startMileage = '';
+                    this.addCarDialog = false;
+                } else {
+                    axios.post("/car/updateCar", this.car)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                let newCar = resp.data.data;
+                                this.cars.splice(this.indexFlag, 1, newCar);
+                                this.$message({
+                                    message: "修改成功",
+                                    type: "success"
+                                })
+                            }
+                        })
+                    this.addCarDialog = false;
+                    this.car.carId = '';
+                    this.car.brand = '';
+                    this.car.licensePlateNumber = '';
+                    this.car.carModel = '';
+                    this.car.carState = '';
+                    this.car.price = '';
+                    this.car.registTime = '';
+                    this.car.startMileage = '';
+                    this.addFlag = true;
+                }
+            },
+            cancleAddCar() {
+                this.addCarDialog = false;
+                this.car.carId = '';
+                this.car.brand = '';
+                this.car.licensePlateNumber = '';
+                this.car.carModel = '';
+                this.car.carState = '';
+                this.car.price = '';
+                this.car.registTime = '';
+                this.car.startMileage = '';
+                this.addFlag = true;
+            },
+            removeCar(carId, index) {
+                axios.post("/car/removeCar/" + carId)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.cars.splice(index, 1);
+                            this.$message({
+                                message: "删除成功",
+                                type: "success"
+                            })
+                        } else {
+                            this.$message({
+                                message: "删除失败",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            updateCar(row, index) {
+                this.car.carId = row.carId;
+                this.car.brand = row.brand;
+                this.car.licensePlateNumber = row.licensePlateNumber;
+                this.car.carModel = row.carModel;
+                this.car.price = row.price;
+                this.car.carState = row.carState;
+                this.car.registTime = row.registTime;
+                this.car.startMileage = row.startMileage;
+                this.car.carImg = row.carImg;
+                this.indexFlag = index;
+                this.addCarDialog = true;
+                this.addFlag = false;
+            },
+            //搜索
+            searchCars() {
+                axios.post("/car/getSearchCars", this.searchCar)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.cars = resp.data.data;
+                            this.$message({
+                                message: "查询成功",
+                                type: "success"
+                            })
+                            this.searchCar.carState = '';
+                            this.searchCar.licensePlateNumber = '';
+                            this.searchCar.brand = '';
+                            this.searchCar.carModel = '';
+                            this.searchCar.price = '';
+                            this.searchCar.startMileage = '';
+                            this.searchCar.registTime = '';
+                        }
+                    })
+            },
+            //导出excel
+            carExport() {
+                let url = "http://localhost:8080/car/export";
+                url += "?pageSize=" + this.carPageDto.pageSize;
+                url += "&pageNum=" + this.carPageDto.pageNum;
+                if (this.searchCar.carId) {
+                    url += "&carId=" + this.searchCar.carId;
+                }
+                if (this.searchCar.carState) {
+                    url += "&carState=" + this.searchCar.carState;
+                }
+                if (this.searchCar.licensePlateNumber) {
+                    url += "&licensePlateNumber=" + this.searchCar.licensePlateNumber;
+                }
+                if (this.searchCar.brand) {
+                    url += "&brand=" + this.searchCar.brand;
+                }
+                if (this.searchCar.carModel) {
+                    url += "&carModel=" + this.searchCar.carModel;
+                }
+                if (this.searchCar.price) {
+                    url += "&price=" + this.searchCar.price;
+                }
+                if (this.searchCar.startMileage) {
+                    url += "&startMileage=" + this.searchCar.startMileage;
+                }
+                if (this.searchCar.registTime) {
+                    url += "&registTime=" + this.searchCar.registTime;
+                }
+                window.location.href = url;
+            },
+//===========================用户===============================
+            //增删改
+            changeUserSize(size) {
+                this.userPageDto.pageSize = size;
+                this.userPageDto.pageNum = 1;
+                this.getUsers();
+            },
+            changeUserNum(num) {
+                this.userPageDto.pageNum = num;
+                this.getUsers();
+            },
+            getUsers() {
+                this.show = "users";
+                axios.post("/user/getUsers", this.userPageDto)
+                    .then(resp => {
+                        this.users = resp.data.data.list;
+                        this.userTotal = resp.data.data.total;
+                    })
+            },
+            addUser() {
+                if (this.addFlag == true) {
+                    axios.post("/user/addUser", this.user)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                this.users.push(resp.data.data);
+                                this.$message({
+                                    message: "添加成功",
+                                    type: "success"
+                                })
+                            } else {
+                                this.$message({
+                                    message: "添加失败",
+                                    type: "error"
+                                })
+                            }
+                        })
+                    this.user.userId = '';
+                    this.user.name = '';
+                    this.user.age = '';
+                    this.user.tel = '';
+                    this.user.idNumber = '';
+                    this.addUserDialog = false;
+                } else {
+                    axios.post("/user/updateUser", this.user)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                let newUser = resp.data.data;
+                                this.users.splice(this.indexFlag, 1, newUser);
+                                this.$message({
+                                    message: "修改成功",
+                                    type: "success"
+                                })
+                            }
+                        })
+                    this.addUserDialog = false;
+                    this.user.userId = '';
+                    this.user.name = '';
+                    this.user.age = '';
+                    this.user.tel = '';
+                    this.user.idNumber = '';
+                    this.addFlag = true;
+                }
+            },
+            cancleAddUser() {
+                this.addUserDialog = false;
+                this.user.userId = '';
+                this.user.name = '';
+                this.user.age = '';
+                this.user.tel = '';
+                this.user.idNumber = '';
+                this.addFlag = true;
+            },
+            removeUser(userId, index) {
+                axios.post("/user/removeUser/" + userId)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.users.splice(index, 1);
+                            this.$message({
+                                message: "删除成功",
+                                type: "success"
+                            })
+                        } else {
+                            this.$message({
+                                message: "删除失败",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            updateUser(row, index) {
+                this.user.userId = row.userId;
+                this.user.name = row.name;
+                this.user.age = row.age;
+                this.user.tel = row.tel;
+                this.user.idNumber = row.idNumber;
+                this.indexFlag = index;
+                this.addUserDialog = true;
+                this.addFlag = false;
+            },
+            //搜索
+            searchUsers() {
+                axios.post("/user/getSearchUsers", this.searchUser)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.users = resp.data.data;
+                            this.$message({
+                                message: "查询成功",
+                                type: "success"
+                            })
+                            this.searchUser.name = '';
+                            this.searchUser.age = '';
+                            this.searchUser.tel = '';
+                            this.searchUser.idNumber = '';
+                        }
+                    })
+            },
+            //导出excel
+            userExport() {
+                let url = "http://localhost:8080/user/export";
+                url += "?pageSize=" + this.userPageDto.pageSize;
+                url += "&pageNum=" + this.userPageDto.pageNum;
+                if (this.searchUser.userId) {
+                    url += "&userId=" + this.searchUser.userId;
+                }
+                if (this.searchUser.name) {
+                    url += "&name=" + this.searchUser.name;
+                }
+                if (this.searchUser.age) {
+                    url += "&age=" + this.searchUser.age;
+                }
+                if (this.searchUser.tel) {
+                    url += "&tel=" + this.searchUser.tel;
+                }
+                if (this.searchUser.idNumber) {
+                    url += "&idNumber=" + this.searchUser.idNumber;
+                }
+                window.location.href = url;
+            },
+//==========================员工================================
+            //增删改
+            changeEmployeeSize(size) {
+                this.employeePageDto.pageSize = size;
+                this.employeePageDto.pageNum = 1;
+                this.getEmployees();
+            },
+            changeEmployeeNum(pageNum) {
+                this.employeePageDto.pageNum = pageNum;
+                this.getEmployees();
+            },
+            getEmployees() {
+                this.show = "employees";
+                axios.post("/employee/getEmployees", this.employeePageDto)
+                    .then(resp => {
+                        this.employees = resp.data.data.list;
+                        this.employeeTotal = resp.data.data.total;
+                    })
+            },
+            addEmployee() {
+                if (this.addFlag == true) {
+                    let loginEmployee = {
+                        employeeId: '',
+                        name: '',
+                        tel: '',
+                        username: '',
+                        password: ''
+                    }
+                    loginEmployee = this.employee;
+                    loginEmployee.password = SparkMD5.hash(this.employee.password + this.salt);
+                    axios.post("/employee/addEmployee", loginEmployee)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                resp.data.data.password = this.employee.password;
+                                this.employees.push(resp.data.data);
+                                this.$message({
+                                    message: "添加成功",
+                                    type: "success"
+                                })
+                            } else {
+                                this.$message({
+                                    message: "添加失败",
+                                    type: "error"
+                                })
+                            }
+                        })
+                    this.employee.employeeId = '';
+                    this.employee.name = '';
+                    this.employee.tel = '';
+                    this.employee.username = '';
+                    this.employee.password = '';
+                    this.addEmployeeDialog = false;
+                } else {
+                    if (this.employee.password != '') {
+                        this.employee.password = SparkMD5.hash(this.employee.password + this.salt);
+                    }
+                    axios.post("/employee/updateEmployee", this.employee)
+                        .then(resp => {
+                            if (resp.data.code == 200) {
+                                let newEmployee = resp.data.data;
+                                this.employees.splice(this.indexFlag, 1, newEmployee);
+                                this.$message({
+                                    message: "修改成功",
+                                    type: "success"
+                                })
+                            }
+                        })
+                    this.addEmployeeDialog = false;
+                    this.employee.employeeId = '';
+                    this.employee.name = '';
+                    this.employee.tel = '';
+                    this.employee.username = '';
+                    this.employee.password = '';
+                    this.addFlag = true;
+                }
+            },
+            cancleAddEmployee() {
+                this.addEmployeeDialog = false;
+                this.employee.employeeId = '';
+                this.employee.name = '';
+                this.employee.tel = '';
+                this.employee.username = '';
+                this.employee.password = '';
+            },
+            removeEmployee(employeeId, index) {
+                axios.post("/employee/removeEmployee/" + employeeId)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.employees.splice(index, 1);
+                            this.$message({
+                                message: "删除成功",
+                                type: "success"
+                            })
+                        } else {
+                            this.employees.split(index, 1);
+                            this.$message({
+                                message: "删除失败",
+                                type: "error"
+                            })
+                        }
+                    })
+            },
+            updateEmployee(row, index) {
+                this.employee.employeeId = row.employeeId;
+                this.employee.name = row.name;
+                this.employee.tel = row.tel;
+                this.employee.username = row.username;
+                this.employee.password = '';
+                this.indexFlag = index;
+                this.addEmployeeDialog = true;
+                this.addFlag = false;
+            },
+            //搜索
+            searchEmployees() {
+                axios.post("/employee/getSearchEmployees", this.searchEmployee)
+                    .then(resp => {
+                        if (resp.data.code == 200) {
+                            this.employees = resp.data.data;
+                            this.$message({
+                                message: "查询成功",
+                                type: "success"
+                            })
+                            this.searchEmployee.name = '';
+                            this.searchEmployee.tel = '';
+                        }
+                    })
+            },
+            //导出excel
+            EmployeeExport() {
+                let url = "http://localhost:8080/employee/export";
+                url += "?pageSize=" + this.employeePageDto.pageSize;
+                url += "&pageNum=" + this.employeePageDto.pageNum;
+                if (this.searchEmployee.employeeId) {
+                    url += "&employeeId=" + this.searchEmployee.employeeId;
+                }
+                if (this.searchEmployee.name) {
+                    url += "&name=" + this.searchEmployee.name;
+                }
+                if (this.searchEmployee.tel) {
+                    url += "&tel=" + this.searchEmployee.tel;
+                }
+                window.location.href = url;
+            }
+        },
+        mounted() {
+
+            axios.get("/employee/salt")
+                .then(resp => {
+                    this.salt = resp.data.data;
+                })
+            axios.get("/carBrand/getBrands")
+                .then(resp => {
+                    this.carBrands = resp.data.data;
+                })
+            // 首页显示后台数据
+            this.getEmployees();
+            this.getUsers();
+            this.getCars();
+            this.getOrders();
+            this.getDamageInformations();
+            this.getViolationInformations();
+            this.show = 'main';
+        },
+    })
+</script>
+<!--进入全屏-->
+<script>
+    // 获取按钮元素
+    var button = document.getElementById("fullscreen-button");
+    // 获取文档元素
+    var doc = document.documentElement;
+
+    // 定义一个函数来切换全屏模式
+    function toggleFullScreen() {
+        // 检查是否已经处于全屏模式
+        if (!document.fullscreenElement) {
+            // 如果不是，请求进入全屏模式
+            doc.requestFullscreen();
+        } else {
+            // 如果是，退出全屏模式
+            document.exitFullscreen();
+        }
+    }
+
+    // 给按钮添加点击事件监听器
+    button.addEventListener("click", toggleFullScreen);
+</script>
+</body>
+</html>
